@@ -30,34 +30,53 @@
  *
  */
 
+#ifndef __LF_ERROR_H
+#define __LF_ERROR_H
 
-#ifndef __LANDFILL_CONFIG_H
-#define __LANDFILL_CONFIG_H
+#define E_PSEUDOBASE 1024
 
-#include "landfill/version.h"
+#include <errno.h>
+#include <stddef.h>
 
-/* global settings */
-#cmakedefine PACKAGE "${PACKAGE}"
-#cmakedefine PACKAGE_NAME "${PACKAGE_NAME}"
-#cmakedefine PACKAGE_VERSION "${PACKAGE_VERSION}"
+#define E_LF_OK				0
+#define E_MSGBASE			(E_PSEUDOBASE + 128)	/* base for message errors */
+#define E_SYSBASE			(E_PSEUDOBASE + 256)	/* base for system errors */
 
-/* check for header files */
-#cmakedefine HAVE_SYSLOG_H
-#cmakedefine HAVE_OPENSSL_H
-#cmakedefine HAVE_PTHREAD_H
+/* message */
+#define E_LF_MSG_OK			E_LF_OK
+#define E_LF_MSG_UNEXDEST	(E_MSGBASE + 1)			/* unexpected destination in context */
+#define E_LF_MSG_UNINICTX	(E_MSGBASE + 2)			/* uninitialized context */
+#define E_LF_MSG_INITCTX	(E_MSGBASE + 3)			/* initialized context where uninitialized context expected */
 
-/* check for symbols */
-#cmakedefine HAVE_LOG_EMERG_S
-#cmakedefine HAVE_LOG_ALERT_S
-#cmakedefine HAVE_LOG_CRIT_S
-#cmakedefine HAVE_LOG_ERR_S
-#cmakedefine HAVE_LOG_WARNING_S
-#cmakedefine HAVE_LOG_NOTICE_S
-#cmakedefine HAVE_LOG_INFO_S
-#cmakedefine HAVE_LOG_DEBUG_S
+/* system */
+#define E_LF_SYS_NOGROUP	(E_SYSBASE + 1)			/* no group found */
+#define E_LF_SYS_NOUSER		(E_SYSBASE + 2)			/* no user found */
 
-/* check for functions */
-#cmakedefine HAVE_GLIBC_STRERROR_R
-#cmakedefine HAVE_POSIX_STRERROR_R
 
-#endif /* __LANDFILL_CONFIG_H */
+extern int lf_strerror_r(int errnum, char *buffer, size_t bufsize);
+
+/* This part is not for public use and should only be included
+ * by error handling functions of libbacktory
+ */
+#ifdef __LF_ERROR_NAMES
+
+typedef struct
+{
+	int code;
+	char *description;
+} lf_edesc_t;
+
+lf_edesc_t lf_errlist[] =
+{
+	{ E_LF_OK,				"Undefined error: 0" 											},
+	{ E_LF_MSG_UNEXDEST,	"Unexpected destination in context"								},
+	{ E_LF_MSG_UNINICTX,	"Uninitialized context object, expected initialized ctx object"	},
+	{ E_LF_MSG_INITCTX,		"Initialized context object, expected uninitialized ctx object"	},
+	{ E_LF_SYS_NOGROUP,		"Group does not exist" 											},
+	{ E_LF_SYS_NOUSER,		"User does not exist" 											},
+	{ -1,					NULL															}	/* list terminator */
+};
+
+#endif /* __LF_ERROR_NAMES */
+
+#endif /* __LF_ERROR_H */
