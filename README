@@ -1,0 +1,11 @@
+libandfill is a library providing general purpose functionality such as
+error tracing, output abstraction and similar stuff.
+
+Functions provided by libandfill are implemented in a thread-safe way. In
+the first place, this means that all functions are reentrant. Furthermore,
+functions that access shared resources (such as files, terminals, etc.) try
+to make use of thread-level locking mechanisms (e. g. pthread mutexes).
+
+libandfill is developed and tested on GNU/Linux and FreeBSD. There is some
+likeliness it will also work on other POSIX compliant operating systems;
+however there is no guarantee it will do so.
